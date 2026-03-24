@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Bonus Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="logo">Bonus Tracker</div>
+        <ul class="nav-links" id="nav-menu">
+            <li class="active" data-target="summary">Summary</li>
+            <li data-target="appeals">Appeals</li>
+            <li data-target="amazon">Amazon Health</li>
+            <li data-target="cs-quality">CS Quality</li>
+            <li data-target="tiktok">TikTok Score</li>
+            <li data-target="settings">Settings</li>
+        </ul>
+        <select id="global-month-select" class="month-selector">
+            <!-- Populated via JS -->
+        </select>
+    </nav>
+
+    <main class="content-area">
+        <!-- 1. Bonifications Summary -->
+        <section id="summary" class="section-pane active">
+            <header class="section-header">
+                <h2>Bonifications Summary</h2>
+            </header>
+            <div class="summary-cards" id="summary-cards-container">
+                <!-- Cards injected by JS -->
+            </div>
+            <div class="card">
+                <h3>Category Breakdown</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="agent1-name">Agent 1</th>
+                            <th class="agent2-name">Agent 2</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-breakdown-body">
+                        <!-- JS populated -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 2. Appeals -->
+        <section id="appeals" class="section-pane">
+            <header class="section-header">
+                <h2>Appeals</h2>
+            </header>
+            <div class="card">
+                <h3>Add New Appeal</h3>
+                <form id="appeal-form" class="form-row">
+                    <div class="form-group">
+                        <label>Agent</label>
+                        <select id="appeal-agent" class="form-control" required>
+                            <option value="agent1" class="agent1-name">Agent 1</option>
+                            <option value="agent2" class="agent2-name">Agent 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="appeal-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Order Number</label>
+                        <input type="text" id="appeal-order" class="form-control" placeholder="111-2222222-3333333" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Platform</label>
+                        <select id="appeal-platform" class="form-control" required>
+                            <option value="Amazon">Amazon</option>
+                            <option value="TikTok">TikTok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="appeal-status" class="form-control" required>
+                            <option value="inProgress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Outcome</label>
+                        <select id="appeal-outcome" class="form-control" required>
+                            <option value="fullRefund">Full Refund ($4.00)</option>
+                            <option value="partialRefund">Partial Refund ($2.00)</option>
+                            <option value="fee">Fee ($0.50)</option>
+                            <option value="lost">Lost ($0.00)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="margin-bottom: 3px;">Add Appeal</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card" style="overflow-x: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Appeals for Selected Month</h3>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label for="appeal-filter-agent" style="margin: 0; font-size: 0.875rem;">Filter by Agent:</label>
+                        <select id="appeal-filter-agent" class="form-control" style="width: auto; padding: 0.25rem 0.5rem;">
+                            <option value="all">All Agents</option>
+                            <option value="agent1" class="agent1-name">Agent 1</option>
+                            <option value="agent2" class="agent2-name">Agent 2</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Date</th>
+                            <th>Order No.</th>
+                            <th>Platform</th>
+                            <th>Status</th>
+                            <th>Outcome</th>
+                            <th>Bonus</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appeals-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. Amazon Account Health -->
+        <section id="amazon" class="section-pane">
+            <header class="section-header">
+                <h2>Amazon Account Health</h2>
+            </header>
+            <div class="card">
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the Amazon Account Health status for each agent for the selected month.</p>
+                <form id="amazon-form">
+                    <div class="form-group">
+                        <label class="agent1-name">Agent 1</label>
+                        <select id="amazon-agent1" class="form-control">
+                            <option value="good">Good ($50)</option>
+                            <option value="minor">Minor Issues/Pending ($15)</option>
+                            <option value="bad">Bad ($0)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="agent2-name">Agent 2</label>
+                        <select id="amazon-agent2" class="form-control">
+                            <option value="good">Good ($50)</option>
+                            <option value="minor">Minor Issues/Pending ($15)</option>
+                            <option value="bad">Bad ($0)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Amazon Health</button>
+                    <span id="amazon-save-msg" style="margin-left: 1rem; color: var(--success); display: none;">Saved!</span>
+                </form>
+            </div>
+        </section>
+
+        <!-- 4. Customer Service Quality -->
+        <section id="cs-quality" class="section-pane">
+            <header class="section-header">
+                <h2>Customer Service Quality</h2>
+            </header>
+            <div class="card">
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the number of negative feedbacks for each agent for the selected month.</p>
+                <form id="cs-form">
+                    <div class="form-group">
+                        <label class="agent1-name">Agent 1</label>
+                        <select id="cs-agent1" class="form-control">
+                            <option value="0">0 Negatives ($50)</option>
+                            <option value="1">1 Negative ($25)</option>
+                            <option value="2">2+ Negatives ($0)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="agent2-name">Agent 2</label>
+                        <select id="cs-agent2" class="form-control">
+                            <option value="0">0 Negatives ($50)</option>
+                            <option value="1">1 Negative ($25)</option>
+                            <option value="2">2+ Negatives ($0)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save CS Quality</button>
+                    <span id="cs-save-msg" style="margin-left: 1rem; color: var(--success); display: none;">Saved!</span>
+                </form>
+            </div>
+        </section>
+
+        <!-- 5. TikTok Account Score -->
+        <section id="tiktok" class="section-pane">
+            <header class="section-header">
+                <h2>TikTok Account Score</h2>
+            </header>
+            <div class="card">
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Shared for both agents. Add daily score to accumulate the monthly bonus.</p>
+                <form id="tiktok-form" class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="tiktok-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Score (e.g. 4.5)</label>
+                        <input type="number" id="tiktok-score" step="0.01" min="0" max="5" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="margin-bottom: 3px;">Add Score</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card" style="overflow-x: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Daily Scores in Selected Month</h3>
+                    <div id="tiktok-total-badge" class="badge badge-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Total Bonus: $0.00</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score Given</th>
+                            <th>Monthly Tier Value</th>
+                            <th>Daily Earned</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tiktok-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. Settings -->
+        <section id="settings" class="section-pane">
+            <header class="section-header">
+                <h2>Settings</h2>
+            </header>
+            <div class="card">
+                <h3>Agent Names</h3>
+                <form id="settings-agents-form" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label>Agent 1 Name</label>
+                        <input type="text" id="settings-agent1-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Agent 2 Name</label>
+                        <input type="text" id="settings-agent2-name" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Names</button>
+                    <span id="settings-save-msg" style="margin-left: 1rem; color: var(--success); display: none;">Saved!</span>
+                </form>
+            </div>
+            <div class="card">
+                <h3>Data Management</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Backup your data or import an existing backup JSON file.</p>
+                <div style="display: flex; gap: 1rem;">
+                    <button id="btn-export" class="btn btn-secondary">Export Data (JSON)</button>
+                    <label class="btn btn-secondary" style="cursor: pointer; display: inline-block;">
+                        Import Data
+                        <input type="file" id="btn-import" accept=".json" style="display: none;">
+                    </label>
+                </div>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--danger);">
+                <h3>Danger Zone</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Permanently delete all data from the browser. This requires the admin password.</p>
+                <button id="btn-clear-data" class="btn btn-danger">Clear All Data</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Admin Password Modal -->
+    <div class="modal-overlay" id="password-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Admin Authorization</h3>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.875rem;">Editing or deleting records requires administrator privileges. Please enter the password.</p>
+            <form id="password-form">
+                <input type="password" id="admin-password" class="form-control" placeholder="Enter password (123456)" required>
+                <div id="password-error" style="color: var(--danger); font-size: 0.875rem; display: none; margin-top: 0.5rem;">Incorrect password.</div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-password">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Authorize</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Appeal Modal -->
+    <div class="modal-overlay" id="edit-appeal-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Appeal</h3>
+            </div>
+            <form id="edit-appeal-form">
+                <input type="hidden" id="edit-appeal-id">
+                <div class="form-group">
+                    <label>Agent</label>
+                    <select id="edit-appeal-agent" class="form-control" required>
+                        <option value="agent1" class="agent1-name">Agent 1</option>
+                        <option value="agent2" class="agent2-name">Agent 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="edit-appeal-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Order Number</label>
+                    <input type="text" id="edit-appeal-order" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="edit-appeal-platform" class="form-control" required>
+                        <option value="Amazon">Amazon</option>
+                        <option value="TikTok">TikTok</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="edit-appeal-status" class="form-control" required>
+                        <option value="inProgress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Outcome</label>
+                    <select id="edit-appeal-outcome" class="form-control" required>
+                        <option value="fullRefund">Full Refund ($4.00)</option>
+                        <option value="partialRefund">Partial Refund ($2.00)</option>
+                        <option value="fee">Fee ($0.50)</option>
+                        <option value="lost">Lost ($0.00)</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-edit-appeal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
