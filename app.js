@@ -39,13 +39,36 @@ const CS_BONUS = {
 };
 
 // State
-let currentMonth = "2"; // Default to March (0-indexed, so 2)
+let currentYear = String(new Date().getFullYear());
+let currentCycle = "2_1";
 let appData = {};
+
+function getCyclesForYear(yearStr) {
+  const year = parseInt(yearStr, 10);
+  const cycles = [];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  for (let i = 0; i < 12; i++) {
+    cycles.push({
+      id: `${i}_1`,
+      name: `${months[i]} 9 - ${months[i]} 23`,
+      days: 15
+    });
+    let lastDayOfMonth = new Date(year, i + 1, 0).getDate();
+    let c2Days = (lastDayOfMonth - 24 + 1) + 8;
+    let nextMonthIndex = (i + 1) % 12;
+    cycles.push({
+      id: `${i}_2`,
+      name: `${months[i]} 24 - ${months[nextMonthIndex]} 8`,
+      days: c2Days
+    });
+  }
+  return cycles;
+}
 
 // Initialize App
 function initApp() {
   loadData();
-  populateMonthSelector();
+  populateSelectors();
   setupNavigation();
   setupEventListeners();
   updateAgentNamesUI();
@@ -55,83 +78,69 @@ function initApp() {
 // Data Management
 function loadData() {
   const data = localStorage.getItem("bonusTrackerData");
-  if (data) {
-    appData = JSON.parse(data);
-  } else {
-    // Starter Data for March 2026
-    appData = {
-      agents: {
-        agent1: "Agent 1",
-        agent2: "Agent 2",
-      },
-      records: {
-        [YEAR]: {
-          2: {
-            // March
-            appeals: [
-              {
-                id: Date.now() + 1,
-                agent: "agent1",
-                date: "2026-03-02",
-                order: "111-1234567-8901234",
-                platform: "Amazon",
-                status: "completed",
-                outcome: "fullRefund",
-              },
-              {
-                id: Date.now() + 2,
-                agent: "agent2",
-                date: "2026-03-05",
-                order: "1234567890",
-                platform: "TikTok",
-                status: "completed",
-                outcome: "partialRefund",
-              },
-            ],
-            amazon: { agent1: "good", agent2: "good" },
-            cs: { agent1: "0", agent2: "0" },
-            tiktok: [{ id: Date.now() + 3, date: "2026-03-01", score: 4.9 }],
-          },
-        },
-      },
-    };
-    saveData();
+  appData = data ? JSON.parse(data) : { agents: { agent1: "Agent 1", agent2: "Agent 2" }, records: {} };
+
+  if (appData.records && appData.records["2026"] && appData.records["2026"]["2"]) {
+    // Old format wipe
+    if (!appData.records["2026"]["2_1"]) {
+        appData.records = {};
+    }
   }
 
-  // Ensure structure exists for current year
-  if (!appData.records[YEAR]) appData.records[YEAR] = {};
+  if (!appData.records) appData.records = {};
+  if (!appData.records[currentYear]) appData.records[currentYear] = {};
+  saveData();
 }
 
 function saveData() {
   localStorage.setItem("bonusTrackerData", JSON.stringify(appData));
 }
 
-function getMonthData(month) {
-  if (!appData.records[YEAR][month]) {
-    appData.records[YEAR][month] = {
+function getPeriodData() {
+  if (!appData.records[currentYear]) {
+    appData.records[currentYear] = {};
+  }
+  if (!appData.records[currentYear][currentCycle]) {
+    appData.records[currentYear][currentCycle] = {
       appeals: [],
-      amazon: { agent1: "bad", agent2: "bad" }, // Default to $0
-      cs: { agent1: "2", agent2: "2" }, // Default to $0
+      amazon: { agent1: "bad", agent2: "bad" },
+      cs: { agent1: "2", agent2: "2" },
       tiktok: [],
     };
   }
-  return appData.records[YEAR][month];
+  return appData.records[currentYear][currentCycle];
 }
 
 // UI Helpers
-function populateMonthSelector() {
-  const select = document.getElementById("global-month-select");
-  select.innerHTML = "";
-  MONTHS.forEach((name, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${name} ${YEAR}`;
-    if (index.toString() === currentMonth) option.selected = true;
-    select.appendChild(option);
+function populateSelectors() {
+  const yearSelect = document.getElementById("global-year-select");
+  const cycleSelect = document.getElementById("global-cycle-select");
+
+  if (!yearSelect.value) yearSelect.value = currentYear;
+
+  function renderCycleOptions(year) {
+    cycleSelect.innerHTML = "";
+    const cycles = getCyclesForYear(year);
+    cycles.forEach((c) => {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = c.name;
+      if (c.id === currentCycle) option.selected = true;
+      cycleSelect.appendChild(option);
+    });
+  }
+
+  renderCycleOptions(currentYear);
+
+  yearSelect.addEventListener("change", (e) => {
+    currentYear = e.target.value;
+    renderCycleOptions(currentYear);
+    currentCycle = cycleSelect.value;
+    renderAll();
   });
 
-  select.addEventListener("change", (e) => {
-    currentMonth = e.target.value;
+  cycleSelect.addEventListener("change", (e) => {
+    currentCycle = e.target.value;
     renderAll();
   });
 }
@@ -173,13 +182,10 @@ function renderAll() {
   renderTikTok();
 }
 
-function getDaysInMonth(monthIndex) {
-  return new Date(YEAR, parseInt(monthIndex) + 1, 0).getDate();
-}
-
 function calculateTikTokBonus() {
-  const monthData = getMonthData(currentMonth);
-  const daysInMonth = getDaysInMonth(currentMonth);
+  const monthData = getPeriodData();
+  const cycleInfo = getCyclesForYear(currentYear).find(c => c.id === currentCycle);
+  const daysInMonth = cycleInfo ? cycleInfo.days : 15;
   let totalAssignedBonus = 0;
 
   monthData.tiktok.forEach((entry) => {
@@ -201,7 +207,7 @@ function calculateTikTokBonus() {
 }
 
 function calculateTotals() {
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
 
   // Appeals
   let appealsA1 = 0,
@@ -290,7 +296,7 @@ function renderSummary() {
 }
 
 function renderAppeals() {
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
   const tbody = document.getElementById("appeals-table-body");
   tbody.innerHTML = "";
 
@@ -341,7 +347,7 @@ function renderAppeals() {
 }
 
 function renderAmazon() {
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
   document.getElementById("amazon-agent1").value =
     monthData.amazon.agent1 || "bad";
   document.getElementById("amazon-agent2").value =
@@ -349,14 +355,15 @@ function renderAmazon() {
 }
 
 function renderCS() {
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
   document.getElementById("cs-agent1").value = monthData.cs.agent1 || "2";
   document.getElementById("cs-agent2").value = monthData.cs.agent2 || "2";
 }
 
 function renderTikTok() {
-  const monthData = getMonthData(currentMonth);
-  const daysInMonth = getDaysInMonth(currentMonth);
+  const monthData = getPeriodData();
+  const cycleInfo = getCyclesForYear(currentYear).find(c => c.id === currentCycle);
+  const daysInMonth = cycleInfo ? cycleInfo.days : 15;
   const tbody = document.getElementById("tiktok-table-body");
   tbody.innerHTML = "";
 
@@ -451,7 +458,7 @@ function setupEventListeners() {
 
   document.getElementById("appeal-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.appeals.push({
       id: Date.now(),
       agent: document.getElementById("appeal-agent").value,
@@ -471,7 +478,7 @@ function setupEventListeners() {
   // Save Amazon
   document.getElementById("amazon-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.amazon.agent1 = document.getElementById("amazon-agent1").value;
     monthData.amazon.agent2 = document.getElementById("amazon-agent2").value;
     saveData();
@@ -485,7 +492,7 @@ function setupEventListeners() {
   // Save CS
   document.getElementById("cs-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.cs.agent1 = document.getElementById("cs-agent1").value;
     monthData.cs.agent2 = document.getElementById("cs-agent2").value;
     saveData();
@@ -499,7 +506,7 @@ function setupEventListeners() {
   // Add TikTok Score
   document.getElementById("tiktok-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.tiktok.push({
       id: Date.now(),
       date: document.getElementById("tiktok-date").value,
@@ -581,7 +588,7 @@ function setupEventListeners() {
 // Global actions for onclick
 window.deleteAppeal = function (id) {
   requestAdminAuth(() => {
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.appeals = monthData.appeals.filter((a) => a.id !== id);
     saveData();
     renderAll();
@@ -590,7 +597,7 @@ window.deleteAppeal = function (id) {
 
 window.deleteTikTok = function (id) {
   requestAdminAuth(() => {
-    const monthData = getMonthData(currentMonth);
+    const monthData = getPeriodData();
     monthData.tiktok = monthData.tiktok.filter((t) => t.id !== id);
     saveData();
     renderAll();
@@ -598,7 +605,7 @@ window.deleteTikTok = function (id) {
 };
 
 window.editAppeal = function (id) {
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
   const appeal = monthData.appeals.find((a) => a.id === id);
   if (!appeal) return;
 
@@ -636,7 +643,7 @@ document
 document.getElementById("edit-appeal-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const id = parseInt(document.getElementById("edit-appeal-id").value);
-  const monthData = getMonthData(currentMonth);
+  const monthData = getPeriodData();
   const index = monthData.appeals.findIndex((a) => a.id === id);
   if (index !== -1) {
     monthData.appeals[index] = {

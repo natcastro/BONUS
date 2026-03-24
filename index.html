@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Bonus Tracker</title>
+    <title>Bi-weekly Bonus Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -18,9 +18,17 @@
             <li data-target="tiktok">TikTok Score</li>
             <li data-target="settings">Settings</li>
         </ul>
-        <select id="global-month-select" class="month-selector">
-            <!-- Populated via JS -->
-        </select>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <select id="global-year-select" class="month-selector">
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+            </select>
+            <select id="global-cycle-select" class="month-selector">
+                <!-- Populated via JS -->
+            </select>
+        </div>
     </nav>
 
     <main class="content-area">
@@ -102,7 +110,7 @@
             </div>
             <div class="card" style="overflow-x: auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3>Appeals for Selected Month</h3>
+                    <h3>Appeals for Selected Period</h3>
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label for="appeal-filter-agent" style="margin: 0; font-size: 0.875rem;">Filter by Agent:</label>
                         <select id="appeal-filter-agent" class="form-control" style="width: auto; padding: 0.25rem 0.5rem;">
@@ -137,7 +145,7 @@
                 <h2>Amazon Account Health</h2>
             </header>
             <div class="card">
-                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the Amazon Account Health status for each agent for the selected month.</p>
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the Amazon Account Health status for each agent for the selected period.</p>
                 <form id="amazon-form">
                     <div class="form-group">
                         <label class="agent1-name">Agent 1</label>
@@ -167,7 +175,7 @@
                 <h2>Customer Service Quality</h2>
             </header>
             <div class="card">
-                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the number of negative feedbacks for each agent for the selected month.</p>
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Set the number of negative feedbacks for each agent for the selected period.</p>
                 <form id="cs-form">
                     <div class="form-group">
                         <label class="agent1-name">Agent 1</label>
@@ -197,7 +205,7 @@
                 <h2>TikTok Account Score</h2>
             </header>
             <div class="card">
-                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Shared for both agents. Add daily score to accumulate the monthly bonus.</p>
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Shared for both agents. Add daily score to accumulate the period bonus.</p>
                 <form id="tiktok-form" class="form-row">
                     <div class="form-group">
                         <label>Entry Type</label>
@@ -221,7 +229,7 @@
             </div>
             <div class="card" style="overflow-x: auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3>Daily Scores in Selected Month</h3>
+                    <h3>Daily Scores in Selected Period</h3>
                     <div id="tiktok-total-badge" class="badge badge-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Total Bonus: $0.00</div>
                 </div>
                 <table class="data-table">
@@ -229,7 +237,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Score Given</th>
-                            <th>Monthly Tier Value</th>
+                            <th>Cycle Tier Value</th>
                             <th>Daily Earned</th>
                             <th>Actions</th>
                         </tr>
