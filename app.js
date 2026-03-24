@@ -193,7 +193,8 @@ function calculateTikTokBonus() {
     else if (s <= 4.8) monthlyVal = 80;
     else monthlyVal = 100;
 
-    totalAssignedBonus += monthlyVal / daysInMonth;
+    const duration = entry.duration || 1;
+    totalAssignedBonus += (monthlyVal / daysInMonth) * duration;
   });
 
   return totalAssignedBonus;
@@ -376,15 +377,18 @@ function renderTikTok() {
     else if (s <= 4.8) monthlyVal = 80;
     else monthlyVal = 100;
 
-    const dailyEarned = monthlyVal / daysInMonth;
-    totalBonus += dailyEarned;
+    const duration = t.duration || 1;
+    const earned = (monthlyVal / daysInMonth) * duration;
+    totalBonus += earned;
+
+    const dateDisplay = duration === 7 ? `${t.date} (Week)` : t.date;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-            <td>${t.date}</td>
+            <td>${dateDisplay}</td>
             <td>${t.score}</td>
             <td>$${monthlyVal.toFixed(2)}</td>
-            <td>+$${dailyEarned.toFixed(2)}</td>
+            <td>+$${earned.toFixed(2)}</td>
             <td>
                 <button class="btn btn-sm btn-danger" onclick="deleteTikTok(${t.id})">Delete</button>
             </td>
@@ -500,6 +504,7 @@ function setupEventListeners() {
       id: Date.now(),
       date: document.getElementById("tiktok-date").value,
       score: document.getElementById("tiktok-score").value,
+      duration: parseInt(document.getElementById("tiktok-type").value, 10),
     });
     saveData();
     renderAll();

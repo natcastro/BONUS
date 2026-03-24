@@ -200,6 +200,13 @@
                 <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Shared for both agents. Add daily score to accumulate the monthly bonus.</p>
                 <form id="tiktok-form" class="form-row">
                     <div class="form-group">
+                        <label>Entry Type</label>
+                        <select id="tiktok-type" class="form-control" required>
+                            <option value="1">Single Day</option>
+                            <option value="7">Entire Week (7 Days)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Date</label>
                         <input type="date" id="tiktok-date" class="form-control" required>
                     </div>
