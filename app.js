@@ -419,8 +419,9 @@ function setupEventListeners() {
     e.preventDefault();
     const pwd = document.getElementById("admin-password").value;
     if (pwd === ADMIN_PASSWORD) {
+      const actionToRun = pendingAction;
       closePasswordModal();
-      if (pendingAction) pendingAction();
+      if (actionToRun) actionToRun();
     } else {
       document.getElementById("password-error").style.display = "block";
     }
